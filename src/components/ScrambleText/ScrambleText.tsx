@@ -27,6 +27,7 @@ export const SCRIPTS = [
   { name: "Русский", color: "#8b6cff", chars: "БГДЖЗИЛПФЦЧШЩЫЭЮЯ" },
   { name: "Ελληνικά", color: "#0ea5a4", chars: "ΓΔΘΛΞΠΣΦΨΩβγδλμπσφψω" },
   { name: "ไทย", color: "#ff5a2c", chars: "กขคงจฉชซดตถทนบปผพฟมยรลวสหอฮ" },
+  { name: "አማርኛ", color: "#0ea5a4", chars: "ሀለሐመሠረሰሸቀበተቸነአከወዘየደገጠጨጸፈፐ" },
 ].map((s) => ({ ...s, glyphs: Array.from(s.chars) }));
 
 export const SCRIPT_EVENT = "veretin:script";
@@ -38,6 +39,9 @@ const PUSH = { k: 520, c: 19 }; // sideways push of neighbours
 const POP = { k: 760, c: 17 }; // scale pop of the swapped letter itself
 const ENTER_DELAY = 35; // ms, scaled by distance from the cursor
 const LEAVE_DELAY = 45; // ms, plus a little random stagger
+// Every so often the scramble lines replay their left-to-right sweep on their own.
+const REPLAY_MIN = 7000; // ms
+const REPLAY_JITTER = 4000; // ms, added at random
 
 export type ScrambleSegment = { text: string; className?: string };
 
@@ -342,6 +346,33 @@ export function ScrambleText({
     const markDirty = () => {
       rectDirty = true;
     };
+    const introHost = root.closest<HTMLElement>("[data-intro-item]");
+
+    // Ambient replay: sweep the scramble lines left to right again, but only when
+    // nobody is hovering, nothing is mid-animation and the headline is on screen.
+    let replayTimer = 0;
+    const replay = () => {
+      const r = root.getBoundingClientRect();
+      const onScreen = r.bottom > 0 && r.top < window.innerHeight;
+      const busy = hovering || chars.some((c) => c.startAt || c.lockAt || c.swapped);
+      if (document.hidden || !onScreen || busy) return;
+      const t0 = performance.now();
+      let k = 0;
+      for (const c of chars) {
+        if (!scrambleSet.has(c.line)) continue;
+        c.nextSwap = t0 + k * INTRO_STEP;
+        c.lockAt = c.nextSwap + INTRO_CYCLE + Math.random() * 80;
+        k++;
+      }
+      start();
+    };
+    const scheduleReplay = () => {
+      replayTimer = window.setTimeout(() => {
+        if (disposed) return;
+        replay();
+        scheduleReplay();
+      }, REPLAY_MIN + Math.random() * REPLAY_JITTER);
+    };
 
     let resizeFrame = 0;
     const ro = new ResizeObserver(() => {
@@ -377,7 +408,11 @@ export function ScrambleText({
         root.addEventListener("pointermove", onMove);
         root.addEventListener("pointerleave", onLeave);
         window.addEventListener("scroll", markDirty, { passive: true });
+        // The page-reveal animation scales this block up from the centre, so the
+        // letter positions measured above are off until it finishes: re-measure then.
+        introHost?.addEventListener("animationend", markDirty);
         ro.observe(root);
+        scheduleReplay();
       }),
     );
 
@@ -391,6 +426,8 @@ export function ScrambleText({
       root.removeEventListener("pointermove", onMove);
       root.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("scroll", markDirty);
+      introHost?.removeEventListener("animationend", markDirty);
+      window.clearTimeout(replayTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intro runs once; the line list is static
   }, [count, radius]);

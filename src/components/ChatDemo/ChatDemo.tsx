@@ -171,16 +171,19 @@ function Translation({
   const [struck, setStruck] = useState(!typeSrc);
   return (
     <>
+      {/* Inline inner span so the strike line follows the text, not the box width. */}
       <span className={styles.src} data-struck={struck || undefined}>
-        {typeSrc ? (
-          <Type
-            text={src}
-            speed={20}
-            onDone={() => window.setTimeout(() => setStruck(true), 260)}
-          />
-        ) : (
-          src
-        )}
+        <span className={styles.strike}>
+          {typeSrc ? (
+            <Type
+              text={src}
+              speed={20}
+              onDone={() => window.setTimeout(() => setStruck(true), 260)}
+            />
+          ) : (
+            src
+          )}
+        </span>
       </span>
       {struck && (
         <span className={styles.grow}>

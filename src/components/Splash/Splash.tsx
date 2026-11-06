@@ -14,6 +14,7 @@ const WORDS = [
   { text: "Βέρετιν", lang: "el" },
   { text: "เวเรติน", lang: "th" },
   { text: "维雷廷", lang: "zh" },
+  { text: "ቬሬቲን", lang: "am" },
   { text: "Veretin", lang: "en" },
 ];
 const COLORS = ["var(--ink)", "var(--violet)", "var(--pink)", "var(--teal)", "var(--orange)"];
