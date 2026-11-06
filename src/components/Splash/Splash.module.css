@@ -1,0 +1,63 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  transition: opacity 0.8s ease;
+  /* if scripts never run, get out of the way */
+  animation: splashFallback 0.3s 6s forwards;
+}
+
+:global(html[data-intro]) .splash {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes splashFallback {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.word {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  animation: swap 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Calm swap: a soft fade with a slight rise, no overshoot. */
+@keyframes swap {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+:global(html[data-intro]) .word {
+  animation: fade-out 0.6s ease forwards;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* The landing word: the brand name in the display face with a warm gradient. */
+.brand {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  padding: 0.1em 0.05em;
+  background: linear-gradient(100deg, var(--violet), var(--pink) 50%, var(--orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation-duration: 0.45s;
+}

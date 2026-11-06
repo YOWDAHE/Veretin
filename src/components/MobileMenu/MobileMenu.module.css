@@ -1,0 +1,195 @@
+.root {
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --out: cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .root {
+    display: block;
+    margin-left: auto;
+  }
+}
+
+/* Round menu button; its two bars turn into an X. */
+.toggle {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  transition: transform 0.28s cubic-bezier(0.34, 2.4, 0.64, 1);
+}
+
+.toggle:active {
+  transform: scale(0.9);
+}
+
+.bars {
+  position: relative;
+  width: 16px;
+  height: 10px;
+}
+
+.bars i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.4s var(--spring), top 0.4s var(--spring);
+}
+
+.bars i:first-child {
+  top: 0;
+}
+
+.bars i:last-child {
+  top: 8px;
+}
+
+.root[data-open] .bars i:first-child {
+  top: 4px;
+  transform: rotate(45deg);
+}
+
+.root[data-open] .bars i:last-child {
+  top: 4px;
+  transform: rotate(-45deg);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s ease,
+    visibility 0s 0.25s;
+}
+
+/* The sheet drops in from the top, under the header row. */
+.sheet {
+  position: fixed;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  padding: 72px 12px 12px;
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 30px 60px -30px rgb(21 21 20 / 0.35);
+  transform-origin: 50% 0;
+  transform: translateY(-12px) scale(0.96);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.3s var(--out),
+    opacity 0.2s ease,
+    visibility 0s 0.3s;
+}
+
+.root[data-open] .backdrop,
+.root[data-open] .sheet {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.root[data-open] .sheet {
+  transform: none;
+  transition:
+    transform 0.5s var(--spring),
+    opacity 0.2s ease,
+    visibility 0s;
+}
+
+.links {
+  list-style: none;
+}
+
+.links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px;
+  border-radius: 20px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  transition: background-color 0.15s ease;
+}
+
+.links a:active {
+  background: color-mix(in srgb, var(--line) 50%, var(--paper));
+}
+
+.links svg {
+  color: var(--violet);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.login,
+.download {
+  display: grid;
+  place-items: center;
+  height: 52px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.login {
+  background: color-mix(in srgb, var(--line) 45%, var(--paper));
+}
+
+.download {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Staggered entrance: each item rises in a beat after the one above. */
+.links li,
+.login,
+.download {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.root[data-open] .links li,
+.root[data-open] .login,
+.root[data-open] .download {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.35s ease calc(80ms + var(--i) * 55ms),
+    transform 0.55s var(--spring) calc(80ms + var(--i) * 55ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .links li,
+  .login,
+  .download {
+    transform: none !important;
+  }
+}

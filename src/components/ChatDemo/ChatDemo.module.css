@@ -1,0 +1,629 @@
+/* Shared springs: overshoot curves give the joyful, bouncy feel. */
+.stage {
+  --spring: cubic-bezier(0.34, 1.8, 0.64, 1);
+  --spring-soft: cubic-bezier(0.34, 1.4, 0.64, 1);
+  position: relative;
+  width: 100%;
+  margin-top: clamp(28px, 5vh, 44px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min(500px, 100%) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(40px, 5vw, 88px);
+  perspective: 1100px;
+  text-align: left;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Side panels, angled so the edge next to the box recedes into the screen. */
+.col {
+  height: 260px;
+  display: flex;
+  align-items: flex-end;
+  /* room below the box for captions under the newest message */
+  margin-bottom: -28px;
+  padding-bottom: 28px;
+  box-sizing: content-box;
+}
+
+.colInner {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.col.me {
+  justify-content: flex-end;
+  transform: rotateY(22deg);
+  transform-origin: 100% 50%;
+}
+
+.col.them {
+  justify-content: flex-start;
+  transform: rotateY(-22deg);
+  transform-origin: 0 50%;
+}
+
+/* Only the newest message is fully visible; one faded above it; older ones leave. */
+.item {
+  transition:
+    opacity 0.5s ease,
+    filter 0.5s ease,
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.col.me .item {
+  transform-origin: 100% 100%;
+}
+
+.col.them .item {
+  transform-origin: 0 100%;
+}
+
+.item[data-age="1"] {
+  opacity: 0.32;
+  transform: scale(0.97);
+}
+
+/* Leaving: drifts up, shrinks and blurs away before it is removed. */
+.item[data-age="2"] {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(-18px) scale(0.88);
+}
+
+/* While a long-press menu is open, everything else in the chat blurs back. */
+.stage:has([data-menu-open]) .item:not(:has([data-menu-open])) {
+  filter: blur(4px);
+}
+
+/* The other person's message: keeps its space, shows nothing. */
+.item[data-spacer] {
+  visibility: hidden;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Narrow screens: full-width box with the conversation as one feed under it. */
+.feed {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .col {
+    display: none;
+  }
+  .center {
+    width: 100%;
+    max-width: 560px;
+  }
+  .feed {
+    width: 100%;
+    max-width: 560px;
+    height: 200px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* the leaving message slides out of the top edge, not over the box */
+    clip-path: inset(0 -40px -60px -40px);
+  }
+  .feed .item[data-feed-age="2"] {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+/* Row height opens with a spring, so earlier messages glide up. */
+.grow {
+  display: grid;
+  animation: grow 0.42s var(--spring-soft) both;
+}
+
+.grow > * {
+  min-height: 0;
+}
+
+@keyframes grow {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+.row {
+  padding-top: 8px;
+}
+
+.align {
+  display: flex;
+  overflow: visible;
+}
+
+.align.me {
+  justify-content: flex-end;
+}
+
+.align.them {
+  justify-content: flex-start;
+}
+
+.bubble {
+  position: relative;
+  display: inline-block;
+  max-width: 240px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 18px;
+}
+
+.me .bubble {
+  background: var(--me);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+  transform-origin: 100% 100%;
+}
+
+.them .bubble {
+  background: var(--their);
+  color: var(--their-ink);
+  border-bottom-left-radius: 5px;
+  transform-origin: 0 100%;
+}
+
+.pop {
+  display: inline-block;
+  animation: pop 0.5s var(--spring) both;
+}
+
+.me .pop {
+  transform-origin: 100% 100%;
+}
+
+.them .pop {
+  transform-origin: 0 100%;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.5);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* Long-press: squish, then spring back a little bigger. */
+.bubble[data-pressed] {
+  animation: press 0.6s var(--spring) both;
+}
+
+@keyframes press {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1.04);
+  }
+}
+
+.bubble[data-translated] {
+  animation: settle 0.5s var(--spring) both;
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Finger tap marker */
+.tap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--stone) 22%, transparent);
+  animation: tap 0.6s ease-out both;
+  pointer-events: none;
+}
+
+.bubble .tap {
+  background: color-mix(in srgb, #fff 35%, transparent);
+}
+
+@keyframes tap {
+  from {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Long-press: reaction bar above the bubble, action menu below it. */
+.pressWrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Reactions + actions float above the pressed bubble. */
+.popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 3;
+}
+
+.reactions {
+  display: flex;
+  gap: 2px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #fff 92%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent),
+    0 12px 26px -12px rgb(21 21 20 / 0.3);
+  transform-origin: 100% 100%;
+  animation: pop 0.4s var(--spring) both;
+}
+
+.reactions span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 17px;
+  line-height: 1;
+  animation: pop 0.45s var(--spring) both;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  width: 196px;
+  padding: 5px;
+  border-radius: 16px;
+  background: color-mix(in srgb, #fff 92%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent),
+    0 18px 34px -14px rgb(21 21 20 / 0.35);
+  transform-origin: 100% 100%;
+  animation: pop 0.42s 0.04s var(--spring) both;
+}
+
+@supports (corner-shape: squircle) {
+  .menu {
+    border-radius: 28px;
+    corner-shape: squircle;
+  }
+}
+
+.menuItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 11px;
+  font-size: 13px;
+  color: var(--ink);
+  transition:
+    background-color 0.15s ease,
+    transform 0.4s var(--spring);
+}
+
+.menuItem svg {
+  color: var(--stone);
+}
+
+.menuLabel {
+  flex: 1;
+}
+
+.primary {
+  font-weight: 600;
+}
+
+.toLang {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--pink) 16%, #fff);
+  color: var(--pink-ink);
+}
+
+.menuItem:hover,
+.menuItem[data-picked] {
+  background: color-mix(in srgb, var(--line) 50%, var(--paper));
+}
+
+.menuItem[data-picked] {
+  transform: scale(1.04);
+}
+
+.sep {
+  height: 1px;
+  margin: 4px 8px;
+  background: color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+/* Typing dots */
+.dots {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px 2px;
+  vertical-align: middle;
+}
+
+.dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.75;
+  animation: hop 0.9s var(--spring-soft) infinite;
+}
+
+.dots i:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.dots i:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes hop {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Translation text */
+.ghost {
+  visibility: hidden;
+}
+
+.src {
+  display: block;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 58% / 0% 1.5px;
+  transition:
+    background-size 0.3s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.3s ease;
+}
+
+.src[data-struck] {
+  background-size: 100% 1.5px;
+  opacity: 0.5;
+}
+
+.bubble .src[data-struck] {
+  font-size: 12.5px;
+}
+
+.dst {
+  display: block;
+  padding-top: 3px;
+  animation: pop 0.45s var(--spring) both;
+  transform-origin: 0 50%;
+}
+
+.bubble .dst {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Under-bubble caption */
+.stack {
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 250px;
+}
+
+.me .stack {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.me .stack .dst {
+  transform-origin: 100% 50%;
+}
+
+.caption {
+  margin-top: 5px;
+  padding: 0 4px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--stone);
+}
+
+.caption .dst {
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* Recording pill */
+.recording {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.me .recording {
+  background: color-mix(in srgb, var(--pink) 16%, #fff);
+  color: var(--pink-ink);
+}
+
+.them .recording {
+  background: color-mix(in srgb, var(--their) 70%, #fff);
+  color: var(--their-ink);
+}
+
+.recording .dots {
+  padding: 0;
+  gap: 3px;
+}
+
+.recording .dots i {
+  width: 4px;
+  height: 4px;
+}
+
+.recMic {
+  display: grid;
+  place-items: center;
+  animation: breathe 0.9s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Voice bubble */
+.voiceBubble {
+  padding: 8px 12px 8px 8px;
+}
+
+.voice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.play {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  padding-left: 2px;
+  flex-shrink: 0;
+}
+
+.me .play {
+  background: var(--pink);
+  color: #fff;
+}
+
+.them .play {
+  background: var(--teal);
+  color: #fff;
+}
+
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+}
+
+.wave i {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: 50% 50%;
+  animation: bar 0.5s var(--spring) both;
+}
+
+@keyframes bar {
+  from {
+    transform: scaleY(0.1);
+  }
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Small tag under an auto-translated message */
+.badge {
+  margin-top: 5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--voice-text);
+  background: color-mix(in srgb, var(--voice) 14%, transparent);
+  animation: pop 0.45s var(--spring) both;
+  transform-origin: 100% 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow,
+  .pop,
+  .bubble[data-pressed],
+  .bubble[data-translated],
+  .menu,
+  .dst,
+  .wave i,
+  .tap,
+  .badge,
+  .reactions,
+  .reactions span {
+    animation: none;
+  }
+  .dots i,
+  .recMic {
+    animation: none;
+  }
+}

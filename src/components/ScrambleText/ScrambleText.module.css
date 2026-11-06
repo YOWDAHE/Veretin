@@ -1,0 +1,67 @@
+.root {
+  position: relative;
+}
+
+/* Hidden until the intro starts, so the English text doesn't flash first.
+   Falls back to visible after 1.2s if JavaScript never runs. */
+.root:not([data-ready]) .text {
+  opacity: 0;
+  animation: reveal 0s 6.5s forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+.line {
+  display: block;
+}
+
+/* Plain lines rise in word by word once the intro starts. */
+.root[data-ready] .line[data-plain] .word {
+  animation: rise 1s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  animation-delay: calc(var(--wi) * 90ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+    filter: blur(6px);
+  }
+}
+
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* The box keeps the English letter's width; a wider or narrower glyph
+   overflows evenly on both sides, and the springs in JS push neighbours
+   out of the way with transforms (no reflow). */
+.ch {
+  display: inline-flex;
+  justify-content: center;
+  vertical-align: top;
+  height: 1lh;
+  will-change: transform;
+}
+
+.glyph {
+  display: inline-block;
+  flex-shrink: 0;
+  white-space: pre;
+  transform-origin: 50% 70%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root[data-ready] .line[data-plain] .word {
+    animation: none;
+  }
+  .root:not([data-ready]) .text {
+    opacity: 1;
+    animation: none;
+  }
+}

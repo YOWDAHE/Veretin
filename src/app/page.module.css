@@ -1,0 +1,5 @@
+/* Header + hero share one backdrop. */
+.top {
+  position: relative;
+  isolation: isolate;
+}

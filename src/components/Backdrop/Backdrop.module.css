@@ -1,0 +1,128 @@
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 1.4s ease;
+  /* melt into the plain page colour at the bottom */
+  mask-image: linear-gradient(#000 70%, transparent);
+  -webkit-mask-image: linear-gradient(#000 70%, transparent);
+}
+
+.blobs {
+  position: absolute;
+  inset: 0;
+}
+
+.blobs i {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--c), color-mix(in srgb, var(--c) 70%, transparent) 55%, transparent);
+  will-change: transform;
+  animation: drift var(--t, 22s) ease-in-out infinite alternate;
+}
+
+/* Bright, warm: tangerine, hot pink, sunflower, coral, peach. */
+.b1 {
+  width: 46vw;
+  height: 46vw;
+  left: -10vw;
+  top: -14vw;
+  --c: #ff6a2b;
+  --t: 21s;
+  --x: 8vw;
+  --y: 6vw;
+}
+
+.b2 {
+  width: 40vw;
+  height: 40vw;
+  right: -8vw;
+  top: -6vw;
+  --c: #ff4f9a;
+  --t: 25s;
+  --x: -7vw;
+  --y: 9vw;
+}
+
+.b3 {
+  width: 34vw;
+  height: 34vw;
+  left: 30vw;
+  top: 18vh;
+  --c: #ffc21a;
+  --t: 19s;
+  --x: 6vw;
+  --y: -5vw;
+}
+
+.b4 {
+  width: 30vw;
+  height: 30vw;
+  left: 4vw;
+  bottom: 4vh;
+  --c: #ff8a5b;
+  --t: 27s;
+  --x: 10vw;
+  --y: -6vw;
+}
+
+.b5 {
+  width: 28vw;
+  height: 28vw;
+  right: 6vw;
+  bottom: 8vh;
+  --c: #ff7ac0;
+  --t: 23s;
+  --x: -9vw;
+  --y: -4vw;
+}
+
+@keyframes drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(var(--x), var(--y)) scale(1.12);
+  }
+}
+
+/* Frosted pane in front of the blobs, with film grain on top. */
+.glass {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--paper) 30%, transparent);
+  backdrop-filter: blur(110px) saturate(1.2);
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+@media (max-width: 720px) {
+  .blobs i {
+    width: 80vw;
+    height: 80vw;
+  }
+  .glass {
+    backdrop-filter: blur(60px) saturate(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blobs i {
+    animation: none;
+  }
+}
+
+/* Comes in last, after the page has grown out of the splash. */
+:global(html:not([data-intro-bg])) .root {
+  opacity: 0;
+}
