@@ -1,12 +1,16 @@
-/* Fills the first screen (minus the floating nav) and centres its content. */
+/* Fills the first screen (minus the floating nav and a strip at the bottom where
+   the product video peeks in) and centres its content. */
 .hero {
+  --peek: clamp(90px, 15vh, 170px);
   position: relative;
-  min-height: calc(100svh - 66px);
-  padding: clamp(24px, 4vh, 48px) 0 clamp(48px, 8vh, 88px);
+  min-height: max(560px, calc(100svh - 66px - var(--peek)));
+  padding: clamp(24px, 4vh, 48px) 0 clamp(40px, 6vh, 64px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden;
+  /* backdrop sits underneath the content; it may spill below (raw blob row) */
+  isolation: isolate;
+  overflow-x: clip;
 }
 
 .inner {

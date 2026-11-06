@@ -1,97 +1,50 @@
+/* Covers the whole page wrapper (nav, hero, video and what follows), under everything. */
 .root {
+  --s: 0; /* blob edge: 0 = soft, 1 = crisp (set from scroll) */
+  --r: clamp(14px, 1.8vw, 26px); /* radius of each scallop */
   position: absolute;
   inset: 0;
-  z-index: 0;
-  overflow: hidden;
+  z-index: -1;
   pointer-events: none;
+  overflow-x: clip;
   transition: opacity 1.4s ease;
-  /* melt into the plain page colour at the bottom */
-  mask-image: linear-gradient(#000 70%, transparent);
-  -webkit-mask-image: linear-gradient(#000 70%, transparent);
 }
 
+/* Blobs live in screen space; script places them for the current scroll. */
 .blobs {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  overflow: hidden;
 }
 
+/* Each blob is a 100px box moved and scaled from script. */
 .blobs i {
   position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--c), color-mix(in srgb, var(--c) 70%, transparent) 55%, transparent);
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100px;
+  transform-origin: 0 0;
   will-change: transform;
-  animation: drift var(--t, 22s) ease-in-out infinite alternate;
 }
 
-/* Bright, warm: tangerine, hot pink, sunflower, coral, peach. */
-.b1 {
-  width: 46vw;
-  height: 46vw;
-  left: -10vw;
-  top: -14vw;
-  --c: #ff6a2b;
-  --t: 21s;
-  --x: 8vw;
-  --y: 6vw;
-}
-
-.b2 {
-  width: 40vw;
-  height: 40vw;
-  right: -8vw;
-  top: -6vw;
-  --c: #ff4f9a;
-  --t: 25s;
-  --x: -7vw;
-  --y: 9vw;
-}
-
-.b3 {
-  width: 34vw;
-  height: 34vw;
-  left: 30vw;
-  top: 18vh;
-  --c: #ffc21a;
-  --t: 19s;
-  --x: 6vw;
-  --y: -5vw;
-}
-
-.b4 {
-  width: 30vw;
-  height: 30vw;
-  left: 4vw;
-  bottom: 4vh;
-  --c: #ff8a5b;
-  --t: 27s;
-  --x: 10vw;
-  --y: -6vw;
-}
-
-.b5 {
-  width: 28vw;
-  height: 28vw;
-  right: 6vw;
-  bottom: 8vh;
-  --c: #ff7ac0;
-  --t: 23s;
-  --x: -9vw;
-  --y: -4vw;
-}
-
-@keyframes drift {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(var(--x), var(--y)) scale(1.12);
-  }
-}
-
-/* Frosted pane in front of the blobs, with film grain on top. */
-.glass {
+.blobs span {
   position: absolute;
   inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--c) calc(var(--s) * 99.4%),
+    color-mix(in srgb, var(--c) 70%, transparent) calc(55% + var(--s) * 44.6%),
+    transparent
+  );
+}
+
+/* Frosted panes with film grain; their extents are set from script. */
+.glass {
+  position: absolute;
+  left: 0;
+  right: 0;
   background: color-mix(in srgb, var(--paper) 30%, transparent);
   backdrop-filter: blur(110px) saturate(1.2);
 }
@@ -106,19 +59,42 @@
   background-size: 180px 180px;
 }
 
-@media (max-width: 720px) {
-  .blobs i {
-    width: 80vw;
-    height: 80vw;
-  }
-  .glass {
-    backdrop-filter: blur(60px) saturate(1.15);
-  }
+/* Upper pane: from the top of the page to partway into the video, bottom edge
+   a row of joined semicircles hanging down (uuu). */
+.top {
+  top: 0;
+  height: 100%;
+  mask-image:
+    linear-gradient(#000, #000),
+    radial-gradient(circle at 50% 0, #000 calc(var(--r) - 0.5px), transparent var(--r));
+  mask-size:
+    100% calc(100% - var(--r) + 1px),
+    calc(var(--r) * 2) var(--r);
+  mask-position:
+    top,
+    50% 100%;
+  mask-repeat: no-repeat, repeat-x;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .blobs i {
-    animation: none;
+/* Lower pane: picks up near the bottom of the video and runs on, top edge the
+   mirror image (semicircles rising). */
+.bottom {
+  bottom: 0;
+  mask-image:
+    linear-gradient(#000, #000),
+    radial-gradient(circle at 50% 100%, #000 calc(var(--r) - 0.5px), transparent var(--r));
+  mask-size:
+    100% calc(100% - var(--r) + 1px),
+    calc(var(--r) * 2) var(--r);
+  mask-position:
+    bottom,
+    50% 0;
+  mask-repeat: no-repeat, repeat-x;
+}
+
+@media (max-width: 720px) {
+  .glass {
+    backdrop-filter: blur(60px) saturate(1.15);
   }
 }
 

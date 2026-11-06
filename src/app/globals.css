@@ -107,3 +107,8 @@ html[data-intro] [data-intro-item] {
   outline: 2px solid var(--voice-text);
   outline-offset: 3px;
 }
+
+/* Temporary: empty room below the video to preview scrolling. */
+.scroll-spacer {
+  height: 160vh;
+}

@@ -1,5 +1,5 @@
-/* Header + hero share one backdrop. */
-.top {
+/* Everything that shares the blob backdrop. */
+.page {
   position: relative;
   isolation: isolate;
 }
