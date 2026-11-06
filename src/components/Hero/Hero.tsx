@@ -15,7 +15,7 @@ export function Hero() {
       <HeroCursor />
 
       <div className={styles.inner} data-intro-item="" style={{ "--intro-i": 1 } as React.CSSProperties}>
-        <ScrambleText lines={headline} scrambleLines={[1]} className={styles.headline} />
+        <ScrambleText lines={headline} scrambleLines={[1]} replayWord="language" className={styles.headline} />
       </div>
 
       <div className={styles.stageWrap}>

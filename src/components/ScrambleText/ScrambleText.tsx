@@ -5,7 +5,7 @@ import { onIntro } from "@/lib/intro";
 import styles from "./ScrambleText.module.css";
 
 /**
- * Scripts Veretin translates between. Each takes one of the four palette
+ * Scripts Ditto translates between. Each takes one of the four palette
  * colours (teal, violet, pink, orange) so a swapped
  * letter reads as "this bit is now Korean / Hindi / Arabic…".
  * Only standalone characters (no combining marks) so each renders on its own.
@@ -30,7 +30,7 @@ export const SCRIPTS = [
   { name: "አማርኛ", color: "#0ea5a4", chars: "ሀለሐመሠረሰሸቀበተቸነአከወዘየደገጠጨጸፈፐ" },
 ].map((s) => ({ ...s, glyphs: Array.from(s.chars) }));
 
-export const SCRIPT_EVENT = "veretin:script";
+export const SCRIPT_EVENT = "ditto:script";
 
 const pick = <T,>(arr: readonly T[]) => arr[(Math.random() * arr.length) | 0];
 
@@ -39,9 +39,9 @@ const PUSH = { k: 520, c: 19 }; // sideways push of neighbours
 const POP = { k: 760, c: 17 }; // scale pop of the swapped letter itself
 const ENTER_DELAY = 35; // ms, scaled by distance from the cursor
 const LEAVE_DELAY = 45; // ms, plus a little random stagger
-// Every so often the scramble lines replay their left-to-right sweep on their own.
-const REPLAY_MIN = 7000; // ms
-const REPLAY_JITTER = 4000; // ms, added at random
+// Every so often one word replays the left-to-right sweep on its own.
+const REPLAY_MIN = 20000; // ms
+const REPLAY_JITTER = 10000; // ms, added at random
 
 export type ScrambleSegment = { text: string; className?: string };
 
@@ -56,6 +56,8 @@ type Props = {
    * Other lines simply rise in word by word. Defaults to every line.
    */
   scrambleLines?: number[];
+  /** Word that now and then replays the scramble by itself (punctuation ignored). */
+  replayWord?: string;
 };
 
 type Token =
@@ -99,6 +101,7 @@ export function ScrambleText({
   className,
   radius = 0.85,
   scrambleLines,
+  replayWord,
 }: Props) {
   const rootRef = useRef<HTMLHeadingElement>(null);
   const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -348,7 +351,18 @@ export function ScrambleText({
     };
     const introHost = root.closest<HTMLElement>("[data-intro-item]");
 
-    // Ambient replay: sweep the scramble lines left to right again, but only when
+    // Letters of the replay word, found by grouping letters on their word element.
+    const bare = (s: string) => s.replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+    const byWord = new Map<Element | null, Ch[]>();
+    for (const c of chars) {
+      const w = c.outer.parentElement;
+      byWord.set(w, [...(byWord.get(w) ?? []), c]);
+    }
+    const replayChars = replayWord
+      ? ([...byWord.values()].find((cs) => bare(cs.map((c) => c.final).join("")) === bare(replayWord)) ?? [])
+      : [];
+
+    // Ambient replay: sweep the word left to right again, but only when
     // nobody is hovering, nothing is mid-animation and the headline is on screen.
     let replayTimer = 0;
     const replay = () => {
@@ -357,20 +371,18 @@ export function ScrambleText({
       const busy = hovering || chars.some((c) => c.startAt || c.lockAt || c.swapped);
       if (document.hidden || !onScreen || busy) return;
       const t0 = performance.now();
-      let k = 0;
-      for (const c of chars) {
-        if (!scrambleSet.has(c.line)) continue;
+      replayChars.forEach((c, k) => {
+        if (!/\p{L}/u.test(c.final)) return; // leave punctuation alone
         c.nextSwap = t0 + k * INTRO_STEP;
         c.lockAt = c.nextSwap + INTRO_CYCLE + Math.random() * 80;
-        k++;
-      }
+      });
       start();
     };
     const scheduleReplay = () => {
       replayTimer = window.setTimeout(() => {
         if (disposed) return;
         replay();
-        scheduleReplay();
+        if (replayChars.length) scheduleReplay();
       }, REPLAY_MIN + Math.random() * REPLAY_JITTER);
     };
 
@@ -412,7 +424,7 @@ export function ScrambleText({
         // letter positions measured above are off until it finishes: re-measure then.
         introHost?.addEventListener("animationend", markDirty);
         ro.observe(root);
-        scheduleReplay();
+        if (replayChars.length) scheduleReplay();
       }),
     );
 

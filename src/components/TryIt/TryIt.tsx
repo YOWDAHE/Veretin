@@ -6,9 +6,9 @@ import { useIntroDone } from "@/lib/intro";
 import styles from "./TryIt.module.css";
 
 // Typed out one after another in the empty box.
-// What Veretin does, typed out one line at a time (each has a real translation in SAMPLES).
+// What Ditto does, typed out one line at a time (each has a real translation in SAMPLES).
 const PROMPTS = [
-  "Speak in English and Veretin types it in their language.",
+  "Speak in English and Ditto types it in their language.",
   "Send voice notes in their language, in your own voice.",
   "Works in WhatsApp, Slack, Gmail and every app you type in.",
   "No copy and paste. Just talk, and it's already translated.",

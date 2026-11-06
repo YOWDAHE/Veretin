@@ -4,24 +4,24 @@ import { useEffect, useState } from "react";
 import { INTRO_EVENT } from "@/lib/intro";
 import styles from "./Splash.module.css";
 
-// "Veretin" written in the scripts it translates between, landing on English.
+// "Ditto" written in the scripts it translates between, landing on English.
 const WORDS = [
-  { text: "Веретин", lang: "ru" },
-  { text: "ヴェレティン", lang: "ja" },
-  { text: "베레틴", lang: "ko" },
-  { text: "वेरेटिन", lang: "hi" },
-  { text: "فيريتين", lang: "ar" },
-  { text: "Βέρετιν", lang: "el" },
-  { text: "เวเรติน", lang: "th" },
-  { text: "维雷廷", lang: "zh" },
-  { text: "ቬሬቲን", lang: "am" },
-  { text: "Veretin", lang: "en" },
+  { text: "Дитто", lang: "ru" },
+  { text: "ディットー", lang: "ja" },
+  { text: "디토", lang: "ko" },
+  { text: "डिट्टो", lang: "hi" },
+  { text: "ديتو", lang: "ar" },
+  { text: "Ντίτο", lang: "el" },
+  { text: "ดิตโต้", lang: "th" },
+  { text: "迪托", lang: "zh" },
+  { text: "ዲቶ", lang: "am" },
+  { text: "Ditto", lang: "en" },
 ];
 const COLORS = ["var(--ink)", "var(--violet)", "var(--pink)", "var(--teal)", "var(--orange)"];
 
 const FIRST = 420; // the opening word gets a little longer than the rest
 const STEP = 240; // ms per translated word
-const HOLD = 1200; // on the final "Veretin" before it fades and the page grows out
+const HOLD = 1200; // on the final "Ditto" before it fades and the page grows out
 const BG_DELAY = 650; // backdrop fades in after the content has started to appear
 const FADE = 800; // splash and word fade-out
 

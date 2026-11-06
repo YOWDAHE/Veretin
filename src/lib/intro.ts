@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
  * typed prompts) wait for it. Splash sets `data-intro` on <html> and fires
  * INTRO_EVENT when the page starts to appear.
  */
-export const INTRO_EVENT = "veretin:intro";
+export const INTRO_EVENT = "ditto:intro";
 
 export function isIntroDone() {
   return document.documentElement.hasAttribute("data-intro") || !document.querySelector("[data-splash]");

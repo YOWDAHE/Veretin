@@ -20,9 +20,9 @@ const unbounded = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Veretin — Speak your language. Send theirs.",
+  title: "Ditto — Speak your language. Send theirs.",
   description:
-    "Talk in any app and Veretin types it, or says it, in the other person's language. In your own voice.",
+    "Talk in any app and Ditto types it, or says it, in the other person's language. In your own voice.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

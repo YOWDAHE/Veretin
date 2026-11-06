@@ -20,16 +20,16 @@ export type LangCode = (typeof LANGUAGES)[number]["code"];
 export const SAMPLES: { en: string; t: Record<LangCode, string> }[] = [
   // The product lines typed out in the box.
   {
-    en: "Speak in English and Veretin types it in their language.",
+    en: "Speak in English and Ditto types it in their language.",
     t: {
-      zh: "用英语说话，Veretin 会用对方的语言打出来。",
-      es: "Habla en inglés y Veretin lo escribe en su idioma.",
-      de: "Sprich Englisch und Veretin schreibt es in ihrer Sprache.",
-      ko: "영어로 말하면 Veretin이 상대방의 언어로 입력해 줘요.",
-      ja: "英語で話すと、Veretinが相手の言語で入力します。",
-      hi: "अंग्रेज़ी में बोलिए, Veretin उसे उनकी भाषा में लिख देता है।",
-      fr: "Parlez en anglais, Veretin l’écrit dans leur langue.",
-      it: "Parla in inglese e Veretin lo scrive nella loro lingua.",
+      zh: "用英语说话，Ditto 会用对方的语言打出来。",
+      es: "Habla en inglés y Ditto lo escribe en su idioma.",
+      de: "Sprich Englisch und Ditto schreibt es in ihrer Sprache.",
+      ko: "영어로 말하면 Ditto가 상대방의 언어로 입력해 줘요.",
+      ja: "英語で話すと、Dittoが相手の言語で入力します。",
+      hi: "अंग्रेज़ी में बोलिए, Ditto उसे उनकी भाषा में लिख देता है।",
+      fr: "Parlez en anglais, Ditto l’écrit dans leur langue.",
+      it: "Parla in inglese e Ditto lo scrive nella loro lingua.",
     },
   },
   {

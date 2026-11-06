@@ -90,7 +90,7 @@ const GAP: Record<string, number> = {
 const gapFor = (l: Line) => GAP[l.kind === "meText" ? l.via : l.kind];
 
 // The first message waits this long after the page appears, so the UI settles first.
-const FIRST_DELAY = 1500;
+const FIRST_DELAY = 2000;
 const KEEP = 8; // messages kept in state across both sides
 const OWN = 3; // own messages per column: newest, one faded, one on its way out
 
